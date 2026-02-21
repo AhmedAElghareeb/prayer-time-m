@@ -118,7 +118,7 @@ class LocalNotificationService {
             sound: RawResourceAndroidNotificationSound('adhan'),
           ),
         ),
-        androidScheduleMode: AndroidScheduleMode.alarmClock,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       );
 
       debugPrint('✅ Notification scheduled successfully');
