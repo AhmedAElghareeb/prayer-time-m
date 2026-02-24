@@ -3,11 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:prayer_times/src/core/services/local_notification.dart';
 import 'package:prayer_times/src/features/parayer_screen/screens/prayer_screen.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+  tz.initializeTimeZones();
 
   await LocalNotificationService.instance.init();
 

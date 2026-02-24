@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:prayer_times/src/features/parayer_screen/controller/model.dart';
 import 'package:prayer_times/src/features/parayer_screen/controller/prayer_controller.dart';
 
 class PrayerScreen extends StatefulWidget {
@@ -14,7 +15,8 @@ class PrayerScreen extends StatefulWidget {
 class _PrayerScreenState extends State<PrayerScreen>
     with SingleTickerProviderStateMixin {
   final controller = PrayerController();
-  Map<String, DateTime>? data;
+
+  PrayerData? data;
 
   late AnimationController _animationController;
 
@@ -47,9 +49,10 @@ class _PrayerScreenState extends State<PrayerScreen>
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
               padding: const EdgeInsets.all(12),
-              itemCount: data!.length,
+              itemCount: data?.times.length,
               itemBuilder: (context, index) {
-                final entry = data!.entries.elementAt(index);
+                final prayerEntries = data?.times.entries.toList();
+                final entry = prayerEntries?[index];
                 final animation = Tween<Offset>(
                   begin: const Offset(0, 0.4),
                   end: Offset.zero,
@@ -57,7 +60,7 @@ class _PrayerScreenState extends State<PrayerScreen>
                   CurvedAnimation(
                     parent: _animationController,
                     curve: Interval(
-                      index / data!.length,
+                      index / (prayerEntries?.length ?? 0),
                       1.0,
                       curve: Curves.easeOutCubic,
                     ),
@@ -71,7 +74,7 @@ class _PrayerScreenState extends State<PrayerScreen>
                   CurvedAnimation(
                     parent: _animationController,
                     curve: Interval(
-                      index / data!.length,
+                      index / (prayerEntries?.length ?? 0),
                       1.0,
                       curve: Curves.easeOut,
                     ),
@@ -87,14 +90,16 @@ class _PrayerScreenState extends State<PrayerScreen>
                       margin: const EdgeInsets.symmetric(vertical: 6),
                       child: ListTile(
                         title: Text(
-                          entry.key,
+                          entry?.key ?? '',
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
                           ),
                         ),
                         trailing: Text(
-                          DateFormat('hh:mm a').format(entry.value),
+                          DateFormat('hh:mm a').format(
+                            entry?.value as DateTime,
+                          ),
                           textDirection: ui.TextDirection.ltr,
                           style: const TextStyle(fontSize: 16),
                         ),

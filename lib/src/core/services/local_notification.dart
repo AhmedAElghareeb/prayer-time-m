@@ -13,10 +13,14 @@ class LocalNotificationService {
 
   static final _plugin = FlutterLocalNotificationsPlugin();
 
-  Future<void> init() async {
+  Future<void> init({String? timezone}) async {
     tzdata.initializeTimeZones();
 
-    tz.setLocalLocation(tz.getLocation('Africa/Cairo'));
+    if (timezone != null) {
+      tz.setLocalLocation(tz.getLocation(timezone));
+    } else {
+      tz.setLocalLocation(tz.getLocation('Africa/Cairo'));
+    }
 
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
 
