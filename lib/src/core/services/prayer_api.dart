@@ -12,66 +12,46 @@ class PrayerApiService {
     required double latitude,
     required double longitude,
     required String countryCode,
+    required DateTime date,
   }) async {
     final method = CountryMethod.methodFromCountry(countryCode);
+    final formattedDate = DateFormat('dd-MM-yyyy').format(date);
 
     final uri = Uri.parse(
-      'https://api.aladhan.com/v1/timings'
-      '?latitude=$latitude'
-      '&longitude=$longitude'
-      '&method=$method',
+      'https://api.aladhan.com/v1/timings/$formattedDate'
+          '?latitude=$latitude'
+          '&longitude=$longitude'
+          '&method=$method',
     );
 
-    // Log request details
-    debugPrint('🌐 [API REQUEST]');
-    debugPrint('URL: ${uri.toString()}');
-    debugPrint('Method: GET');
-    debugPrint('Headers: ${const {'Content-Type': 'application/json'}}');
-    debugPrint('Parameters:');
-    debugPrint('  - latitude: $latitude');
-    debugPrint('  - longitude: $longitude');
-    debugPrint('  - method: $method');
-    debugPrint('  - countryCode: $countryCode');
+    // --- LOGGING: Request ---
+    debugPrint('🌍 [API REQUEST] URL: $uri');
 
-    final stopwatch = Stopwatch()..start();
     final response = await http.get(uri);
-    stopwatch.stop();
-    // Log response details
-    debugPrint('📡 [API RESPONSE]');
-    debugPrint('Status Code: ${response.statusCode}');
-    debugPrint('Response Time: ${stopwatch.elapsedMilliseconds}ms');
-    debugPrint('Content-Type: ${response.headers['content-type']}');
-    debugPrint('Content-Length: ${response.body.length} bytes');
 
-    if (kDebugMode) {
-      try {
-        final formattedJson = const JsonEncoder.withIndent('  ')
-            .convert(jsonDecode(response.body));
-        debugPrint('Response Body:');
-        debugPrint(formattedJson);
-      } catch (e) {
-        debugPrint('Response Body (raw): ${response.body}');
-      }
-    }
+    // --- LOGGING: Response ---
+    debugPrint('📥 [API RESPONSE] Status Code: ${response.statusCode}');
 
     if (response.statusCode != 200) {
-      debugPrint('❌ API Error: Status ${response.statusCode}');
-      throw Exception(
-          'Failed to fetch prayer times (Status: ${response.statusCode})');
+      debugPrint('❌ [API ERROR] Body: ${response.body}');
+      throw Exception('Failed to load prayer times: ${response.statusCode}');
     }
+
+    // Optional: Uncomment the next line to see the full raw JSON
+    debugPrint('📄 [API RESPONSE] Body: ${response.body}');
 
     final decoded = jsonDecode(response.body);
     final data = decoded['data'];
 
-    final timings = data['timings'];
-    final date = data['date']['gregorian']['date'];
-    final timezone = data['meta']['timezone'];
+    // Extract the specific date returned by the API to be safe
+    final String dateFromApi = data['date']['gregorian']['date'];
+    final dateParts = dateFromApi.split('-');
 
-    final dateParts = date.split('-');
     final day = int.parse(dateParts[0]);
     final month = int.parse(dateParts[1]);
     final year = int.parse(dateParts[2]);
 
+    final timezone = data['meta']['timezone'];
     final location = tz.getLocation(timezone);
 
     tz.TZDateTime parseTime(String time) {
@@ -87,23 +67,16 @@ class PrayerApiService {
     }
 
     final Map<String, tz.TZDateTime> prayerTimes = {
-      'fajr'.tr(): parseTime(timings['Fajr']),
-      'dhuhr'.tr(): parseTime(timings['Dhuhr']),
-      'asr'.tr(): parseTime(timings['Asr']),
-      'maghrib'.tr(): parseTime(timings['Maghrib']),
-      'isha'.tr(): parseTime(timings['Isha']),
+      'fajr'.tr(): parseTime(data['timings']['Fajr']),
+      'dhuhr'.tr(): parseTime(data['timings']['Dhuhr']),
+      'asr'.tr(): parseTime(data['timings']['Asr']),
+      'maghrib'.tr(): parseTime(data['timings']['Maghrib']),
+      'isha'.tr(): parseTime(data['timings']['Isha']),
     };
 
-    // // Store timezone for notification service
-    // prayerTimes['_timezone'] = timezone;
-
-    // Log parsed prayer times
-    debugPrint('✅ [API SUCCESS]');
-    debugPrint('Timezone: $timezone');
-    debugPrint('Prayer Times:');
-    prayerTimes.forEach((key, value) {
-      debugPrint('  - $key: $value');
-    });
+    // --- LOGGING: Parsed Data ---
+    debugPrint('✅ [PARSED DATA] Timezone: $timezone');
+    debugPrint('⏰ [PARSED DATA] Fajr: ${prayerTimes['fajr'.tr()]}');
 
     return PrayerData(timezone: timezone, times: prayerTimes);
   }

@@ -48,9 +48,13 @@ class LocalNotificationService {
     required int id,
     required String prayerName,
     required DateTime time,
+    required String timezone,
   }) async {
-    final now = tz.TZDateTime.now(tz.local);
-    final scheduled = tz.TZDateTime.from(time, tz.local);
+    final location = tz.getLocation(timezone);
+
+    // 3. SCHEDULE USING SPECIFIC LOCATION
+    final scheduled = tz.TZDateTime.from(time, location);
+    final now = tz.TZDateTime.now(location);
 
     debugPrint('🔔 [NOTIFICATION]');
     debugPrint('Now        : $now');
@@ -68,12 +72,14 @@ class LocalNotificationService {
           android: AndroidNotificationDetails(
             'prayer_channel',
             'Prayer Times',
-            priority: Priority.high,
             importance: Importance.max,
+            priority: Priority.high,
             sound: RawResourceAndroidNotificationSound('adhan'),
+            playSound: true,
           ),
         ),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+
       );
     } on PlatformException catch (e) {
       if (e.code == 'exact_alarms_not_permitted') {

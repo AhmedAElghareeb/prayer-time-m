@@ -1,11 +1,12 @@
 {
-  "time": "وقت",
-  "prayer_time": "حان الآن موعد أذان",
-  "fajr": "الفجر",
-  "dhuhr": "الظهر",
-  "asr": "العصر",
-  "maghrib": "المغرب",
-  "isha": "العشاء",
-  "times": "مواقيت الصلاة",
+  "time": "Time",
+  "prayer_time": "It is now time for the call to prayer",
+  "fajr": "Fajr",
+  "dhuhr": "Dhuhr",
+  "asr": "Asr",
+  "maghrib": "Maghrib",
+  "isha": "Isha",
+  "times": "Prayer Times",
+  "remaining": "Time Remaining Until",
   "": ""
 }
