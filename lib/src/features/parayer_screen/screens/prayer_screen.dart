@@ -84,6 +84,11 @@ class _PrayerScreenState extends State<PrayerScreen>
           : Column(
               children: [
                 const SizedBox(height: 20),
+                // TextButton(
+                //     onPressed: () async => await LocalNotificationService
+                //         .instance
+                //         .testAthanInTenSeconds(),
+                //     child: const Text('Test Athan in 10 seconds')),
                 CircleProgressTimer(
                   prayerName: currentPrayerInfo!['nextName'],
                   nextPrayerTime: currentPrayerInfo['nextTime'],

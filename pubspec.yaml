@@ -32,6 +32,8 @@ dependencies:
   easy_localization: ^3.0.8
   intl: any
 
+  permission_handler: ^12.0.1
+  workmanager: ^0.9.0+3
 
 dev_dependencies:
   flutter_test:
